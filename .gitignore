@@ -1,0 +1,10 @@
+/vendor/
+/node_modules/
+composer.lock
+.DS_Store
+*.log
+*.zip
+.phpcs-cache
+.idea/
+.vscode/
+.claude/settings.local.json
