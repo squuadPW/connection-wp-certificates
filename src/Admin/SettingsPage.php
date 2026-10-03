@@ -140,19 +140,12 @@ final class SettingsPage {
 
 		// URL base.
 		$url = isset( $input['base_url'] ) ? esc_url_raw( trim( (string) wp_unslash( $input['base_url'] ) ), array( 'https', 'http' ) ) : '';
-		/**
-		 * Permite URLs http:// (p. ej. en desarrollo local). Por defecto solo https://, porque la clave viaja en cada
-		 * petición.
-		 *
-		 * @param bool $allow Permitir http://.
-		 */
-		$allow_http = (bool) apply_filters( 'cwpc_allow_insecure_url', false );
 		if ( '' === $url ) {
 			$output['base_url'] = '';
-		} elseif ( 'https' === wp_parse_url( $url, PHP_URL_SCHEME ) || $allow_http ) {
+		} elseif ( 'https' === wp_parse_url( $url, PHP_URL_SCHEME ) || $this->settings->allows_insecure_url() ) {
 			$output['base_url'] = untrailingslashit( $url );
 		} else {
-			add_settings_error( Settings::OPTION, 'cwpc_base_url', __( 'The URL must start with https:// because the API key is sent with every request.', 'connection-wp-certificates' ) );
+			add_settings_error( Settings::OPTION, 'cwpc_base_url', __( 'The URL must start with https:// because the API key is sent with every request. http:// is only allowed when WP_ENVIRONMENT_TYPE is "local" or "development".', 'connection-wp-certificates' ) );
 		}
 
 		// Clave de API.
@@ -207,16 +200,23 @@ final class SettingsPage {
 				esc_html( $this->settings->base_url() ),
 				esc_html__( 'Defined in wp-config.php (CWPC_BASE_URL).', 'connection-wp-certificates' )
 			);
-			return;
+		} else {
+			printf(
+				'<input type="url" class="regular-text code" id="cwpc_base_url" name="%1$s[base_url]" value="%2$s" placeholder="https://certificates.example.com" />'
+				. '<p class="description">%3$s</p>',
+				esc_attr( Settings::OPTION ),
+				esc_attr( $this->settings->all()['base_url'] ),
+				esc_html__( 'Address of the site where WP Certificates is installed.', 'connection-wp-certificates' )
+			);
 		}
 
-		printf(
-			'<input type="url" class="regular-text code" id="cwpc_base_url" name="%1$s[base_url]" value="%2$s" placeholder="https://certificates.example.com" />'
-			. '<p class="description">%3$s</p>',
-			esc_attr( Settings::OPTION ),
-			esc_attr( $this->settings->all()['base_url'] ),
-			esc_html__( 'Address of the site where WP Certificates is installed.', 'connection-wp-certificates' )
-		);
+		if ( '' !== $this->settings->base_url() && ! $this->settings->base_url_is_secure() ) {
+			$message = $this->settings->allows_insecure_url()
+				? __( 'Testing mode: this URL uses http://, allowed only because this site is a local or development environment. The API key travels unencrypted; use https:// in production.', 'connection-wp-certificates' )
+				: __( 'This URL uses http:// and requests are blocked in this environment. Change it to https://.', 'connection-wp-certificates' );
+
+			printf( '<div class="notice notice-warning inline"><p>%s</p></div>', esc_html( $message ) );
+		}
 	}
 
 	/**

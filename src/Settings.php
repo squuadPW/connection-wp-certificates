@@ -92,6 +92,28 @@ final class Settings {
 	}
 
 	/**
+	 * Indica si se permite una URL http://. Por defecto solo en entornos local y development (WP_ENVIRONMENT_TYPE),
+	 * porque la clave viaja en cada petición.
+	 */
+	public function allows_insecure_url(): bool {
+		$allow = in_array( wp_get_environment_type(), array( 'local', 'development' ), true );
+
+		/**
+		 * Filtra si se permite una URL http:// para WP Certificates.
+		 *
+		 * @param bool $allow Permitir http://. Por defecto true solo en entornos local y development.
+		 */
+		return (bool) apply_filters( 'cwpc_allow_insecure_url', $allow );
+	}
+
+	/**
+	 * Indica si la URL base configurada usa https://.
+	 */
+	public function base_url_is_secure(): bool {
+		return 'https' === wp_parse_url( $this->base_url(), PHP_URL_SCHEME );
+	}
+
+	/**
 	 * Tiempo máximo de espera de cada petición, en segundos.
 	 */
 	public function timeout(): int {

@@ -11,6 +11,7 @@ Plugin de WordPress que conecta un sitio con una plataforma **WP Certificates** 
 
 1. Activa el plugin.
 2. Ve a **Ajustes › WP Certificates**, escribe la URL del sitio de WP Certificates (https) y pega la clave `sqc_…`. La clave se guarda cifrada.
+   - En sitios con `WP_ENVIRONMENT_TYPE` `local` o `development` (como los de Local) se acepta `http://` para pruebas; en producción, solo `https://`.
 3. O, recomendado en producción, define ambos valores en `wp-config.php`:
 
 ```php

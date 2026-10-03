@@ -8,3 +8,5 @@ composer.lock
 .idea/
 .vscode/
 .claude/settings.local.json
+CLAUDE.local.md
+.claude/local/

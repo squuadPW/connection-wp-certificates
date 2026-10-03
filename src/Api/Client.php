@@ -67,6 +67,14 @@ final class Client {
 			);
 		}
 
+		// La URL pudo guardarse en local y llegar a producción (copia de la BD) o venir de wp-config: se revisa aquí.
+		if ( ! $this->settings->base_url_is_secure() && ! $this->settings->allows_insecure_url() ) {
+			return $this->fail(
+				new WP_Error( 'cwpc_insecure_url', __( 'The WP Certificates URL must use https:// in this environment. The request was not sent.', 'connection-wp-certificates' ), array( 'status' => 503 ) ),
+				$code
+			);
+		}
+
 		$base      = $this->settings->base_url();
 		$cache_key = Cache::key( 'doc', $base, $code );
 		$cached    = get_transient( $cache_key );

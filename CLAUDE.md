@@ -51,9 +51,9 @@ uninstall.php                    borra opciones y transients cwpc_
 | `cwpc_cache_ttl` | filter | `int $ttl, string $code, array $result` |
 | `cwpc_request_failed` | action | `WP_Error $error, string $code` |
 | `cwpc_settings_capability` | filter | `string $capability` (por defecto `manage_options`) |
-| `cwpc_allow_insecure_url` | filter | `bool $allow` (por defecto `false`; solo para desarrollo local) |
+| `cwpc_allow_insecure_url` | filter | `bool $allow` (por defecto `true` solo si `wp_get_environment_type()` es `local` o `development`) |
 
-Códigos de error `WP_Error` estables: `cwpc_invalid_code`, `cwpc_not_configured`, `cwpc_document_not_found`, `cwpc_endpoint_not_found`, `cwpc_unauthorized`, `cwpc_rate_limited`, `cwpc_connection_failed`, `cwpc_http_error`, `cwpc_invalid_response`, `cwpc_not_loaded`.
+Códigos de error `WP_Error` estables: `cwpc_invalid_code`, `cwpc_not_configured`, `cwpc_document_not_found`, `cwpc_endpoint_not_found`, `cwpc_unauthorized`, `cwpc_rate_limited`, `cwpc_connection_failed`, `cwpc_insecure_url`, `cwpc_http_error`, `cwpc_invalid_response`, `cwpc_not_loaded`.
 
 ## Convenciones
 
@@ -62,6 +62,7 @@ Códigos de error `WP_Error` estables: `cwpc_invalid_code`, `cwpc_not_configured
 - Cadenas visibles en inglés y traducibles. Comentarios y documentación en español.
 - Todo dato remoto es no confiable: se normaliza en el cliente y se escapa al imprimir.
 - La clave de API nunca se imprime, nunca se registra en logs y nunca va en la URL. Las peticiones salen con `redirection => 0`.
+- https obligatorio, salvo en entornos `local`/`development` (`WP_ENVIRONMENT_TYPE`), donde se permite http:// para pruebas con un aviso en los ajustes. El cliente lo vuelve a comprobar en cada petición (`cwpc_insecure_url`), por si una URL http llega a producción con una copia de la BD.
 - Todo fallo devuelve `WP_Error` y dispara `cwpc_request_failed`.
 
 ## Comandos
